@@ -1,0 +1,53 @@
+query,expected_response
+What is the DigitalOcean Gradient AI Platform?,"The DigitalOcean Gradient AI Platform is a fully managed service for building and running AI applications, including AI agents, knowledge bases for retrieval-augmented generation, evaluations, guardrails, and direct access to foundation models through serverless inference."
+What are the three main parts of a Gradient Agent?,"A Gradient Agent is built from a foundation model, a system prompt called instructions, and optional tools or a knowledge base."
+What is an agent hosted behind after it is created?,"Once created, an agent is hosted behind an API endpoint with its own endpoint access key."
+Do developers provision servers to run a Gradient Agent?,"""No, developers do not provision servers. They describe the desired behavior and DigitalOcean runs it."""
+What are the four ways to create an agent on Gradient?,"An agent can be created through the DigitalOcean control panel, the API, the doctl command line tool, or the Agent Development Kit."
+What information must a developer provide to create an agent?,"""To create an agent, a developer provides a name, a foundation model, instructions, a project identifier, and a datacenter region."""
+What kinds of foundation models does Gradient offer?,Gradient offers both open-weight models and commercial models.
+Name two open-weight model families available on Gradient.,Llama 3.3 and the GPT-oss family are open-weight models available on Gradient.
+Name two commercial model providers on Gradient.,Anthropic Claude and OpenAI GPT are commercial models available on Gradient.
+What must a developer do the first time they use a model from a provider?,"The first time a developer uses a model from a provider, they must accept that provider's terms in the control panel."
+What is the context length of Llama 3.3 Instruct 70B?,"""Llama 3.3 Instruct (70B) has a context length of 128,000 tokens."""
+How much does Llama 3.3 Instruct 70B cost per million input tokens?,Llama 3.3 Instruct (70B) costs 0.65 dollars per million input tokens.
+How much does Llama 3.3 Instruct 70B cost per million output tokens?,Llama 3.3 Instruct (70B) costs 0.65 dollars per million output tokens.
+What is serverless inference?,"Serverless inference lets a developer send a prompt directly to a foundation model and receive a completion without creating an agent, billed per token."
+Does serverless inference require creating an agent?,"""No, serverless inference lets a developer call a foundation model directly without creating an agent."""
+What does serverless inference require before requests are processed?,Serverless inference requires a positive prepaid account balance before requests are processed.
+What happens to serverless inference access if the prepaid balance reaches zero?,Access is suspended if the prepaid account balance reaches zero.
+What are guardrails on the Gradient platform?,"Guardrails are content, safety, and privacy controls applied to an agent's output."
+What can guardrails detect and block?,"Guardrails can detect and block toxic content, filter personally identifiable information, and resist prompt injection attempts at runtime."
+What is a knowledge base on the Gradient platform?,A knowledge base is a managed store of private data that an agent can search to ground its answers.
+What does RAG stand for?,RAG stands for retrieval-augmented generation.
+How does retrieval-augmented generation work?,"""Retrieval-augmented generation combines a foundation model with a search step: when a question arrives, the system retrieves the most relevant pieces of text from the knowledge base and passes them to the model along with the question, so the model answers using the retrieved text."""
+What problem does retrieval-augmented generation reduce?,"""Retrieval-augmented generation reduces hallucination, which is when a model produces a confident but incorrect answer."""
+What is a hallucination in the context of a language model?,A hallucination is when a model produces a confident but incorrect answer.
+What is an embedding?,An embedding is a list of numbers that represents the meaning of a chunk of text.
+What converts documents into vector embeddings in a knowledge base?,An embedding model converts documents into vector embeddings in a knowledge base.
+Where are embeddings stored in a knowledge base?,Embeddings are stored in a vector database.
+How does a knowledge base find relevant text at query time?,"""At query time, the knowledge base finds the chunks whose embeddings are closest to the embedding of the question, and those chunks become the retrieved context."""
+What data sources can a knowledge base index?,"A knowledge base can index unstructured files, folders stored in DigitalOcean Spaces, or web pages."
+How are knowledge bases billed?,Knowledge bases are billed per token for the embedding work done during indexing and retrieval.
+Is a knowledge base the same resource as an agent?,"""No, a knowledge base is a separate resource from an agent that a developer creates and then attaches to one or more agents."""
+Does an agent need a knowledge base to function?,"""No, an agent does not need a knowledge base to function, but attaching one lets the agent answer from the developer's own data."""
+Can the same knowledge base be attached to several agents?,"""Yes, the same knowledge base can be attached to several agents or left unattached."""
+How do you open a knowledge base to manage it in the control panel?,"""In the control panel, open the GenAI Platform section, select the Knowledge Bases tab, choose the knowledge base, and open its Settings tab."""
+What can you change from a knowledge base Settings tab?,"""From the Settings tab you can rename the knowledge base, change its project, add tags, or destroy it."""
+Which tab shows whether an indexing job completed after an edit?,The Activity tab shows whether the indexing job completed if an edit triggers reindexing.
+What is Gradient Evaluations used for?,Gradient Evaluations is used to test and score the quality of an agent's answers.
+Why do evaluations exist on the Gradient platform?,"""Evaluations exist because an agent's output is not deterministic, so small changes can quietly lower answer quality without any visible error, and evaluations turn manual spot-checking into a repeatable, measured signal that catches regressions automatically."""
+What does it mean that an agent's output is not deterministic?,It means the same question can produce different answers on different runs.
+Name three changes that can quietly lower an agent's answer quality.,"""Editing the system prompt, swapping the foundation model, or reindexing the knowledge base can quietly lower an agent's answer quality."""
+What is an evaluation dataset?,An evaluation dataset is a curated file of questions and known-good answers.
+What format is an evaluation dataset uploaded as?,An evaluation dataset is uploaded as a UTF-8 CSV with a required query column for the question and an expected_response column for the ground-truth answer.
+What are the two required columns in an evaluation dataset CSV?,The two required columns are query for the question and expected_response for the ground-truth answer.
+How many rows can an evaluation dataset hold?,An evaluation dataset can hold up to 500 rows.
+About how many rows are usually enough for a meaningful evaluation signal?,A small curated set of around 50 rows is usually enough to give a meaningful signal cheaply.
+What is an evaluation test case?,"An evaluation test case binds a dataset to a specific agent and selects which metric categories to score, and it is a reusable test configuration."
+What are the metric categories that Gradient ships?,"""Gradient ships metrics grouped into categories such as correctness, context quality, safety and security, and user outcomes."""
+What is the star metric?,The star metric is the single metric whose score determines whether an evaluation run passes or fails against a success threshold.
+What does a finished evaluation run report?,A finished evaluation run reports both an overall pass status and a per-metric breakdown.
+What is LLM-as-a-judge?,LLM-as-a-judge is a technique where a large language model acts as an automated judge that reads the agent's answer and the expected answer and produces a score with reasoning.
+From where can an evaluation run be started?,"""An evaluation run can be started from the control panel, the Agent Development Kit, or the REST API."""
+What does it mean that evaluation runs are asynchronous?,"""It means starting a run returns a run identifier immediately, and the caller polls the run until it finishes before reading the scorecard."""
