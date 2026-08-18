@@ -1,0 +1,25 @@
+# Agent configuration, version-controlled and synced to the platform on every
+# pull request by sync_config.py. Editing any value here is a reviewable change
+# that the eval gate scores before merge.
+
+# The agent under test (bootstrapped once with doctl gradient agent create).
+agent_uuid: "8e8c1429-997c-11f1-aee4-4e013e2ddde4"
+
+# The evaluation test case that binds the dataset to the agent.
+test_case_uuid: "e713ed6a-9984-11f1-aee4-4e013e2ddde4"
+
+# The foundation model UUID. Swapping this is a one-line, reviewable change.
+model: "d754f2d7-d1f0-11ef-bf8f-4e013e2ddde4"
+
+# The agent's system prompt.
+instruction: >
+  You are a helpful assistant that answers questions accurately and
+  concisely based on the information provided. If you do not know the
+  answer, say so rather than guessing.
+
+# Pass mark for the star metric, as a percentage.
+star_threshold: 80
+
+# UUID of the star metric (Correctness, general hallucinations). Required by the
+# API when updating the test case threshold.
+star_metric_uuid: "11f04651-dfae-39b3-bf8f-4e013e2ddde4"

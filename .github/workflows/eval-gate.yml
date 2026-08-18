@@ -1,6 +1,8 @@
 name: Agent Eval Gate
 
-# Run the evaluation gate on every pull request, and allow manual runs.
+# Sync the repo configuration to the platform, then score the agent, on every
+# pull request. Because the config lives in Git, the change under review is the
+# change the gate evaluates.
 on:
   pull_request:
   workflow_dispatch:
@@ -8,27 +10,27 @@ on:
 jobs:
   eval-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
+    timeout-minutes: 30
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - run: pip install -r requirements.txt
+
+      # Push config/agent.yaml (instruction, model, threshold) to the platform
+      # before scoring, so the evaluation reflects the pull request.
+      - name: Sync configuration
+        run: python sync_config.py
+        env:
+          DIGITALOCEAN_API_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
 
       - name: Run the evaluation gate
+        run: python eval_driver.py
         env:
-          # Secret: the DigitalOcean personal access token.
           DIGITALOCEAN_API_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-          # Variables: not sensitive, kept out of the code so the same
-          # workflow drops onto any Gradient agent without edits.
           TEST_CASE_UUID: ${{ vars.TEST_CASE_UUID }}
           AGENT_UUID: ${{ vars.AGENT_UUID }}
           STAR_THRESHOLD: ${{ vars.STAR_THRESHOLD }}
-        run: python eval_driver.py
