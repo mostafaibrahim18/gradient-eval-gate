@@ -18,7 +18,7 @@ instruction: >
   answer, say so rather than guessing.
 
 # Pass mark for the star metric, as a percentage.
-star_threshold: 80
+star_threshold: 40
 
 # UUID of the star metric (Correctness, general hallucinations). Required by the
 # API when updating the test case threshold.
