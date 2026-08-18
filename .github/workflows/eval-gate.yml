@@ -1,8 +1,8 @@
 name: Agent Eval Gate
 
 # Sync the repo configuration to the platform, then score the agent, on every
-# pull request. Because the config lives in Git, the change under review is the
-# change the gate evaluates.
+# pull request. config/agent.yaml is the single source of truth; only the API
+# token comes from repository secrets.
 on:
   pull_request:
   workflow_dispatch:
@@ -20,8 +20,6 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      # Push config/agent.yaml (instruction, model, threshold) to the platform
-      # before scoring, so the evaluation reflects the pull request.
       - name: Sync configuration
         run: python sync_config.py
         env:
@@ -31,6 +29,3 @@ jobs:
         run: python eval_driver.py
         env:
           DIGITALOCEAN_API_TOKEN: ${{ secrets.DIGITALOCEAN_API_TOKEN }}
-          TEST_CASE_UUID: ${{ vars.TEST_CASE_UUID }}
-          AGENT_UUID: ${{ vars.AGENT_UUID }}
-          STAR_THRESHOLD: ${{ vars.STAR_THRESHOLD }}

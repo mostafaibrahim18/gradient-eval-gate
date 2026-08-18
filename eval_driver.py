@@ -7,13 +7,12 @@ reads the star-metric score, and exits non-zero if the score is below the
 threshold. Runs after sync_config.py in CI, so it scores the configuration
 exactly as the pull request defines it.
 
-Configuration comes from environment variables (a local .env file locally,
-repository secrets and variables in CI):
+Configuration is read from config/agent.yaml (the single source of truth for
+agent_uuid, test_case_uuid, and star_threshold). The API token is read from the
+environment (a local .env file locally, a repository secret in CI):
 
     DIGITALOCEAN_API_TOKEN   (required)  PAT with genai scopes
-    TEST_CASE_UUID           (required)  the evaluation test-case UUID
-    AGENT_UUID               (required)  the agent under test
-    STAR_THRESHOLD           (optional)  pass mark, default 80.0
+    CONFIG_PATH              (optional)  path to the config file, default config/agent.yaml
     POLL_INTERVAL_SECONDS    (optional)  seconds between polls, default 15
     POLL_TIMEOUT_SECONDS     (optional)  give-up time, default 1500 (25 min)
 """
@@ -23,6 +22,7 @@ import sys
 import time
 
 import requests
+import yaml
 
 try:
     from dotenv import load_dotenv
@@ -34,20 +34,28 @@ except ImportError:
 API_BASE = "https://api.digitalocean.com/v2/gen-ai"
 
 
-def env(name, default=None, required=False):
-    value = os.environ.get(name, default)
-    if required and not value:
-        sys.exit(f"ERROR: {name} is required but not set.")
-    return value
-
-
 def main():
-    token = env("DIGITALOCEAN_API_TOKEN", required=True)
-    test_case_uuid = env("TEST_CASE_UUID", required=True)
-    agent_uuid = env("AGENT_UUID", required=True)
-    threshold = float(env("STAR_THRESHOLD", default="80.0"))
-    poll_interval = int(env("POLL_INTERVAL_SECONDS", default="15"))
-    poll_timeout = int(env("POLL_TIMEOUT_SECONDS", default="1500"))
+    token = os.environ.get("DIGITALOCEAN_API_TOKEN")
+    if not token:
+        sys.exit("ERROR: DIGITALOCEAN_API_TOKEN is required but not set.")
+
+    # Read agent_uuid, test_case_uuid, and star_threshold from the config file,
+    # so a single file is the source of truth for both sync and scoring.
+    config_path = os.environ.get("CONFIG_PATH", "config/agent.yaml")
+    try:
+        with open(config_path, encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+    except FileNotFoundError:
+        sys.exit(f"ERROR: config file not found at {config_path}")
+
+    test_case_uuid = config.get("test_case_uuid")
+    agent_uuid = config.get("agent_uuid")
+    threshold = float(config.get("star_threshold", 80.0))
+    if not test_case_uuid or not agent_uuid:
+        sys.exit("ERROR: test_case_uuid and agent_uuid must be set in the config.")
+
+    poll_interval = int(os.environ.get("POLL_INTERVAL_SECONDS", "15"))
+    poll_timeout = int(os.environ.get("POLL_TIMEOUT_SECONDS", "1500"))
 
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
