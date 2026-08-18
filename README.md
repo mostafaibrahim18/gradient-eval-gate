@@ -1,8 +1,8 @@
 # Gradient Eval Gate
 
-Regression-test a [DigitalOcean Gradient](https://www.digitalocean.com/products/ai-platform) agent in CI. This repo runs your agent against a golden dataset through the Evaluations API on every pull request, and fails the build when the correctness score drops below a threshold you set.
+Regression-test a [DigitalOcean Gradient](https://www.digitalocean.com/products/ai-platform) agent in CI. The agent's configuration lives in this repository, so a change to its prompt, model, or threshold is a pull request. On every pull request the workflow syncs that configuration to the platform, scores the agent against a golden dataset through the Evaluations API, and fails the build when the correctness score drops below a threshold you set.
 
-A silent agent regression becomes a red build, caught before it reaches a user.
+Because the configuration is version-controlled, the change that affects quality is the same change the gate evaluates. A silent agent regression becomes a red build, caught before it reaches a user.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ A silent agent regression becomes a red build, caught before it reaches a user.
 
 <!-- Save the architecture diagram to assets/architecture.png -->
 
-The gate has four parts: the Gradient agent under test, a golden dataset of `query` and `expected_response` rows, the Evaluations API that scores each answer with an LLM judge, and a GitHub Actions workflow that reads the score and exits non-zero when it falls below the threshold.
+On each pull request, the workflow runs `sync_config.py` to push `config/agent.yaml` to the platform (the agent's instruction, model, and star-metric threshold), then runs `eval_driver.py` to start an evaluation run, poll it, read the star-metric score, and exit non-zero when it falls below the threshold. The golden dataset is uploaded once through the control panel and referenced by the test case.
 
 ## Prerequisites
 
@@ -24,57 +24,54 @@ The gate has four parts: the Gradient agent under test, a golden dataset of `que
 1. **Clone and install dependencies.**
 
    ```bash
-   git clone https://github.com/your-org/gradient-eval-gate.git
+   git clone https://github.com/mostafaibrahim18/gradient-eval-gate.git
    cd gradient-eval-gate
    pip install -r requirements.txt
    ```
 
-2. **Configure environment variables.** Copy `.env.example` to `.env` and fill in the values:
+2. **Configure environment variables.** Copy `.env.example` to `.env` and fill in the token and identifiers. `.env` is gitignored and must never be committed.
 
-   ```
-   DIGITALOCEAN_API_TOKEN=dop_v1_your_token_here
-   TEST_CASE_UUID=your_test_case_uuid_here
-   AGENT_UUID=your_agent_uuid_here
-   STAR_THRESHOLD=80
-   ```
+3. **Bootstrap once.** Create a Gradient agent (`doctl gradient agent create`), upload the golden dataset in `evaluations/`, and create an evaluation test case bound to the agent. Record the agent and test-case UUIDs.
 
-   `.env` is gitignored and must never be committed.
-
-3. **Provision the agent and dataset.** Create a Gradient agent, upload the golden dataset in `evaluations/`, and create an evaluation test case bound to the agent. See the [full tutorial](#) for step-by-step instructions.
+4. **Point the config at your resources.** Set the UUIDs, model, instruction, and threshold in `config/agent.yaml`. From here on, edit this file to change the agent, not the control panel.
 
 ## Run it locally
 
 ```bash
-python eval_driver.py
+python sync_config.py   # push config/agent.yaml to the platform
+python eval_driver.py   # start, poll, score, and gate
 ```
 
-The driver starts an evaluation run, polls until it finishes, reads the star-metric score, prints a PASS or FAIL line, and exits 0 or 1 to match. That exit code is what CI keys on.
+`sync_config.py` updates the agent and test case from the config. `eval_driver.py` runs the evaluation, prints a PASS or FAIL line, and exits 0 or 1. That exit code is what CI keys on.
 
 ## How the CI gate works
 
-The workflow at `.github/workflows/eval-gate.yml` triggers on every pull request. It runs `eval_driver.py` with the token from repository secrets and the identifiers from repository variables. If the score is below `STAR_THRESHOLD`, the driver exits 1 and the job fails.
+The workflow at `.github/workflows/eval-gate.yml` triggers on every pull request. It syncs the config, then runs the driver, using the token from repository secrets and the identifiers from repository variables. If the score is below the threshold, the driver exits 1 and the job fails.
 
 To block merges on a failing gate, add a required status check under **Settings → Branches** targeting `main` and select the `eval-gate` check. Required status checks are enforced on public repositories and on paid or organization plans.
 
-## Configuration
+## What lives where
 
-All configuration is passed through environment variables, so the same driver and workflow drop onto any Gradient agent without code changes:
+The configuration that affects quality lives in Git; only the token and identifiers live in GitHub settings.
 
-| Variable | Where | Purpose |
+| Item | Location | Purpose |
 |---|---|---|
-| `DIGITALOCEAN_API_TOKEN` | GitHub secret | Authenticates to the Evaluations API |
-| `TEST_CASE_UUID` | GitHub variable | The evaluation test case to run |
-| `AGENT_UUID` | GitHub variable | The agent under test |
-| `STAR_THRESHOLD` | GitHub variable | Pass mark for the star metric |
+| `instruction`, `model`, `star_threshold` | `config/agent.yaml` | Synced to the platform on every run |
+| `golden_dataset.csv` | `evaluations/` | Uploaded once, referenced by the test case |
+| `DIGITALOCEAN_API_TOKEN` | GitHub secret | Authenticates to the API |
+| `AGENT_UUID`, `TEST_CASE_UUID`, `STAR_THRESHOLD` | GitHub variables | Passed to the driver |
 
 ## Repo structure
 
 ```
 gradient-eval-gate/
-├── .github/workflows/eval-gate.yml   CI workflow
+├── .github/workflows/eval-gate.yml   CI: sync config, then run the gate
+├── config/agent.yaml                 agent config (prompt, model, threshold), synced to the platform
 ├── evaluations/golden_dataset.csv    golden dataset (query, expected_response)
+├── assets/architecture.png           architecture diagram
+├── sync_config.py                    pushes config to the platform before scoring
 ├── eval_driver.py                    starts, polls, and gates the eval run
-├── requirements.txt                  Python dependencies
+├── requirements.txt                  requests, python-dotenv, pyyaml
 ├── .env.example                      template for local configuration
 └── README.md
 ```
