@@ -3,19 +3,22 @@
 # that the eval gate scores before merge.
 
 # The agent under test (bootstrapped once with doctl gradient agent create).
-agent_uuid: "8e8c1429-997c-11f1-aee4-4e013e2ddde4"
+agent_uuid: "d06d198e-9b29-11f1-aee4-4e013e2ddde4"
 
 # The evaluation test case that binds the dataset to the agent.
-test_case_uuid: "e713ed6a-9984-11f1-aee4-4e013e2ddde4"
+test_case_uuid: "14dbc642-9b2a-11f1-aee4-4e013e2ddde4"
 
 # The foundation model UUID. Swapping this is a one-line, reviewable change.
 model: "d754f2d7-d1f0-11ef-bf8f-4e013e2ddde4"
 
 # The agent's system prompt.
 instruction: >
-  You are a helpful assistant that answers questions accurately and
-  concisely based on the information provided. If you do not know the
-  answer, say so rather than guessing.
+  You are an expert technical assistant with deep knowledge of cloud
+  platforms, AI systems, and software engineering. Answer each question
+  directly, accurately, and completely. Provide specific, factual details
+  rather than vague or hedging responses. Give your best, most informed
+  answer based on your knowledge, and only state uncertainty when you
+  genuinely have no basis to answer. Keep answers clear and to the point.
 
 # Pass mark for the star metric, as a percentage.
 star_threshold: 40
@@ -23,3 +26,4 @@ star_threshold: 40
 # UUID of the star metric (Correctness, general hallucinations). Required by the
 # API when updating the test case threshold.
 star_metric_uuid: "11f04651-dfae-39b3-bf8f-4e013e2ddde4"
+

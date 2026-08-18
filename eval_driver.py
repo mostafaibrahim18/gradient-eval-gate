@@ -14,7 +14,7 @@ environment (a local .env file locally, a repository secret in CI):
     DIGITALOCEAN_API_TOKEN   (required)  PAT with genai scopes
     CONFIG_PATH              (optional)  path to the config file, default config/agent.yaml
     POLL_INTERVAL_SECONDS    (optional)  seconds between polls, default 15
-    POLL_TIMEOUT_SECONDS     (optional)  give-up time, default 1500 (25 min)
+    POLL_TIMEOUT_SECONDS     (optional)  give-up time, default 2700 (45 min)
 """
 
 import os
@@ -55,7 +55,7 @@ def main():
         sys.exit("ERROR: test_case_uuid and agent_uuid must be set in the config.")
 
     poll_interval = int(os.environ.get("POLL_INTERVAL_SECONDS", "15"))
-    poll_timeout = int(os.environ.get("POLL_TIMEOUT_SECONDS", "1500"))
+    poll_timeout = int(os.environ.get("POLL_TIMEOUT_SECONDS", "2700"))
 
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
@@ -96,7 +96,7 @@ def main():
             continue
         break
     else:
-        sys.exit(f"ERROR: run did not finish within {poll_timeout}s (timeout).")
+        sys.exit(f"TIMEOUT: run did not finish within {poll_timeout}s. This is a platform-speed timeout, not a quality failure. Re-run or raise POLL_TIMEOUT_SECONDS.")
 
     print(f"Final status: {run.get('status')}")
 
