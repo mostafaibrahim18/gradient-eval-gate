@@ -40,7 +40,7 @@ The gate has four parts: the Gradient agent under test, a golden dataset of `que
 
    `.env` is gitignored and must never be committed.
 
-3. **Provision the agent and dataset.** Create a Gradient agent, upload the golden dataset in `evaluations/`, and create an evaluation test case bound to the agent. See the [full tutorial](#) for step-by-step instructions.
+3. **Provision the agent and dataset.** Create a Gradient agent, upload the golden dataset in `evaluations/`, and create an evaluation test case bound to the agent. 
 
 ## Run it locally
 
