@@ -3,22 +3,19 @@
 # that the eval gate scores before merge.
 
 # The agent under test (bootstrapped once with doctl gradient agent create).
-agent_uuid: "d06d198e-9b29-11f1-aee4-4e013e2ddde4"
+agent_uuid: "ac198cef-9baf-11f1-aee4-4e013e2ddde4"
 
 # The evaluation test case that binds the dataset to the agent.
 test_case_uuid: "14dbc642-9b2a-11f1-aee4-4e013e2ddde4"
 
 # The foundation model UUID. Swapping this is a one-line, reviewable change.
-model: "d754f2d7-d1f0-11ef-bf8f-4e013e2ddde4"
+model: "b5622f2b-3d14-11f1-b074-4e013e2ddde4"
 
 # The agent's system prompt.
 instruction: >
-  You are an expert technical assistant with deep knowledge of cloud
-  platforms, AI systems, and software engineering. Answer each question
-  directly, accurately, and completely. Provide specific, factual details
-  rather than vague or hedging responses. Give your best, most informed
-  answer based on your knowledge, and only state uncertainty when you
-  genuinely have no basis to answer. Keep answers clear and to the point.
+  You are a knowledgeable assistant. Answer each question directly and
+  completely using your knowledge. Give a clear, factual answer in one or
+  two sentences, and always attempt an answer rather than declining.
 
 # Pass mark for the star metric, as a percentage.
 star_threshold: 40
