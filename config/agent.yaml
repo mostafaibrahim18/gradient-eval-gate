@@ -13,12 +13,9 @@ model: "d754f2d7-d1f0-11ef-bf8f-4e013e2ddde4"
 
 # The agent's system prompt.
 instruction: >
-  You are an expert technical assistant with deep knowledge of cloud
-  platforms, AI systems, and software engineering. Answer each question
-  directly, accurately, and completely. Provide specific, factual details
-  rather than vague or hedging responses. Give your best, most informed
-  answer based on your knowledge, and only state uncertainty when you
-  genuinely have no basis to answer. Keep answers clear and to the point.
+  You are a knowledgeable assistant. Answer each question directly and
+  completely using your knowledge. Give a clear, factual answer in one or
+  two sentences, and always attempt an answer rather than declining.
 
 # Pass mark for the star metric, as a percentage.
 star_threshold: 40
