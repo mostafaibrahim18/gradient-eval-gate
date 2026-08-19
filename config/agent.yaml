@@ -13,9 +13,9 @@ model: "b5622f2b-3d14-11f1-b074-4e013e2ddde4"
 
 # The agent's system prompt.
 instruction: >
-  You are a helpful assistant that answers questions accurately and
-  concisely based on the information provided. If you do not know the
-  answer, say so rather than guessing.
+  You are an expert assistant. Give a direct, accurate, and complete answer
+  to each question based on what you know. Be specific and factual, and only
+  say you are unsure when you truly have no basis to answer.
 
 # Pass mark for the star metric, as a percentage.
 star_threshold: 40
