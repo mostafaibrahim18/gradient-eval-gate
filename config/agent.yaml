@@ -14,10 +14,10 @@ model: "b5622f2b-3d14-11f1-b074-4e013e2ddde4"
 # The agent's system prompt.
 instruction: >
   Only answer if you are absolutely certain. If there is any doubt at all,
-  respond only with "I cannot answer that."
+  respond only with "I cant answer that."
 
 # Pass mark for the star metric, as a percentage.
-star_threshold: 40
+star_threshold: 50
 
 # UUID of the star metric (Correctness, general hallucinations). Required by the
 # API when updating the test case threshold.
